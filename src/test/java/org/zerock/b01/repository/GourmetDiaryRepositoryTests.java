@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.jaxb.SpringDataJaxb;
+import org.springframework.transaction.annotation.Transactional;
 import org.zerock.b01.domain.GourmetDiary;
 import org.zerock.b01.domain.GourmetImage;
 import org.zerock.b01.dto.GourmetListDTO;
@@ -56,7 +57,7 @@ public class GourmetDiaryRepositoryTests {
     }
 
     @Test
-    public void eksadke() {
+    public void testList() {
 
         PageRequestDTO pageRequestDTO = PageRequestDTO.builder().build();
 
@@ -66,11 +67,22 @@ public class GourmetDiaryRepositoryTests {
 
         result.getContent().forEach(dto -> log.info(dto));
 
+    }
+
+    @Transactional
+    @Test
+    public void testListWithAllImages() {
+
+        PageRequestDTO pageRequestDTO = PageRequestDTO.builder().build();
+
+        Page<GourmetDiary> result = repository.getListWithAllImage(pageRequestDTO);
 
 
-
-
-
+        result.forEach(diary -> {
+            log.info(diary);
+            log.info(diary.getImageSet());
+            log.info("---------------------");
+        });
 
     }
 

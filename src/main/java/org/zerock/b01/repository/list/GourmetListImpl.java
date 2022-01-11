@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import org.zerock.b01.domain.GourmetDiary;
 import org.zerock.b01.domain.QGourmetDiary;
 import org.zerock.b01.domain.QGourmetImage;
+import org.zerock.b01.domain.QReply;
 import org.zerock.b01.dto.GourmetListDTO;
 import org.zerock.b01.dto.PageRequestDTO;
 
@@ -32,9 +33,11 @@ public class GourmetListImpl extends QuerydslRepositorySupport implements Gourme
 
         QGourmetDiary diary = QGourmetDiary.gourmetDiary;
         QGourmetImage image = QGourmetImage.gourmetImage;
+        QReply reply = QReply.reply;
 
         JPQLQuery<GourmetDiary> query = from(diary);
         query.leftJoin(diary.imageSet,image);
+        query.leftJoin(reply).on(reply.diary.eq(diary));
 
         BooleanBuilder booleanBuilder = new BooleanBuilder();
         booleanBuilder.or(image.ord.isNull());
@@ -42,10 +45,12 @@ public class GourmetListImpl extends QuerydslRepositorySupport implements Gourme
 
         query.where(booleanBuilder);
 
+        query.groupBy(diary);
+
 
         JPQLQuery<GourmetListDTO> dtoQuery =
                 query.select(Projections.bean(GourmetListDTO.class,  diary.gno, diary.title, diary.writer,
-                        image.uuid, image.fileName));
+                        image.uuid, image.fileName , reply.countDistinct().as("replyCount")));
 
         Pageable pageable = pageRequestDTO.getPageable("gno");
 
@@ -55,6 +60,37 @@ public class GourmetListImpl extends QuerydslRepositorySupport implements Gourme
         List<GourmetListDTO> dtoList = dtoQuery.fetch();
 
         long count = dtoQuery.fetchCount();
+
+        return new PageImpl<>(dtoList, pageable, count);
+    }
+
+    @Override
+    public Page<GourmetDiary> getListWithAllImage(PageRequestDTO pageRequestDTO) {
+
+        log.info("getListWithAllImage..................");
+
+        QGourmetDiary diary = QGourmetDiary.gourmetDiary;
+        QGourmetImage image = QGourmetImage.gourmetImage;
+
+
+        JPQLQuery<GourmetDiary> query = from(diary);
+        query.leftJoin(diary.imageSet,image);
+
+
+        BooleanBuilder booleanBuilder = new BooleanBuilder();
+
+        query.where(booleanBuilder);
+
+        query.groupBy(diary);
+
+        Pageable pageable = pageRequestDTO.getPageable("gno");
+
+
+        this.getQuerydsl().applyPagination(pageable, query);
+
+        List<GourmetDiary> dtoList = query.fetch();
+
+        long count = query.fetchCount();
 
         return new PageImpl<>(dtoList, pageable, count);
     }

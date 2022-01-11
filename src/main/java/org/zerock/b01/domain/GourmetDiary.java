@@ -2,17 +2,19 @@ package org.zerock.b01.domain;
 
 
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 @Entity
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
+@ToString(exclude = "imageSet")
 public class GourmetDiary extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,8 +34,9 @@ public class GourmetDiary extends BaseEntity{
         this.content = content;
     }
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @Builder.Default
+    @BatchSize(size = 100)
     private Set<GourmetImage> imageSet = new HashSet<>();
 
     public void addImage(GourmetImage image){

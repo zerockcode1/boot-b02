@@ -1,8 +1,6 @@
 package org.zerock.b01.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.Embeddable;
 import javax.persistence.NamedEntityGraph;
@@ -11,6 +9,9 @@ import javax.persistence.NamedEntityGraph;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
+@Getter
+@EqualsAndHashCode(of = "uuid")
 public class GourmetImage {
 
     private String uuid;
@@ -22,4 +23,5 @@ public class GourmetImage {
     public void setOrd(int ord){
         this.ord = ord;
     }
+
 }

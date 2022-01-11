@@ -18,6 +18,7 @@ public class GourmetListDTO {
     private String uuid;
     private String fileName;
 
+    private long replyCount;
 
 
 }
